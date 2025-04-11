@@ -22,4 +22,10 @@
         android:name="cs477.gmu.project3_rdelphec.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
+
+    <fragment
+        android:id="@+id/nav_createstory"
+        android:name="cs477.gmu.project3_rdelphec.ui.create.CreateStoryFragment"
+        android:label="@string/menu_createstory"
+        tools:layout="@layout/fragment_create_story" />
 </navigation>
