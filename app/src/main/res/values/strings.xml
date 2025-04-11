@@ -2,8 +2,8 @@
     <string name="app_name">Project3-rdelphec</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title">Story Time</string>
+    <string name="nav_header_subtitle">rdelphec@gmu.edu</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
@@ -11,4 +11,5 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="menu_createstory">Create Story</string>
+    <string name="menu_recall">Recall Story</string>
 </resources>

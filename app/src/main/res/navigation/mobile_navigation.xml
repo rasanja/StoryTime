@@ -12,20 +12,14 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="cs477.gmu.project3_rdelphec.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
-
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="cs477.gmu.project3_rdelphec.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
-
-    <fragment
         android:id="@+id/nav_createstory"
         android:name="cs477.gmu.project3_rdelphec.ui.create.CreateStoryFragment"
         android:label="@string/menu_createstory"
+        tools:layout="@layout/fragment_create_story" />
+
+    <fragment
+        android:id="@+id/nav_recall"
+        android:name="cs477.gmu.project3_rdelphec.ui.recall.RecallFragment"
+        android:label="@string/menu_recall"
         tools:layout="@layout/fragment_create_story" />
 </navigation>
