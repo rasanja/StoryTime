@@ -12,4 +12,5 @@
     <string name="menu_slideshow">Slideshow</string>
     <string name="menu_createstory">Create Story</string>
     <string name="menu_recall">Recall Story</string>
+    <string name="cs_btnStartCameraTxt">Take picture</string>
 </resources>

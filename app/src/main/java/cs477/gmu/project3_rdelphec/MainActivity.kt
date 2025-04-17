@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
 import cs477.gmu.project3_rdelphec.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -52,6 +53,18 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this, requiredPermissions, 0
             )
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if(!hasRequiredPermissions()){ //check for permissions again in the event that it was revoked later.
+            ActivityCompat.requestPermissions(
+                this, requiredPermissions, 0
+            )
+        }
+        if(!isInternetAvailable()){
+            Snackbar.make(binding.root, "No network connection",Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -117,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if(!isInternetAvailable()){
-            Toast.makeText(this, "No network connection", Toast.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, "No network connection",Snackbar.LENGTH_SHORT).show()
         }
     }
 
