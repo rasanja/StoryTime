@@ -37,12 +37,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.graphics.Matrix
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cs477.gmu.project3_rdelphec.ui.theme.StoryTimeTheme
 import kotlinx.coroutines.launch
 
 
@@ -61,9 +67,61 @@ class CreateStoryFragment : Fragment() {
 
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @Preview(showBackground = true)
     @Composable
     fun CreateStoryUI(){
+        var isCameraOpen by remember { mutableStateOf(false) }
+        if(isCameraOpen){
+            CameraUI(
+                onClose = {isCameraOpen = false}
+            )
+        }else{
+            Column (
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ){ //row 1 with label and camera button
+                    Button(
+                        onClick = { //launch camera
+                            isCameraOpen = true
+                        }
+                    ) {
+                        Text("Open Camera")
+                    }
+                }
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ){ //row 2 with text field with generate story botton
+
+                }
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(2f),
+                    verticalAlignment = Alignment.Top,
+                ){ //row 3 with story output
+
+                }
+            }
+        }
+
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun CameraUI(onClose:() -> Unit){
         val scope = rememberCoroutineScope()
         val scaffoldState = rememberBottomSheetScaffoldState()
         val context = LocalContext.current
@@ -153,10 +211,12 @@ class CreateStoryFragment : Fragment() {
         }
     }
 
-    @Preview(showBackground = true)
+
     @Composable
     private fun UIPreview(){
-        CreateStoryUI()
+        StoryTimeTheme {
+            CreateStoryUI()
+        }
     }
 
 
