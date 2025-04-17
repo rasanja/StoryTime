@@ -75,4 +75,7 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.activity.compose)
     implementation(libs.lifecycle.viewmodel.compose)
+
+    //for icons
+    implementation(libs.compose.material.icons.extended)
 }
