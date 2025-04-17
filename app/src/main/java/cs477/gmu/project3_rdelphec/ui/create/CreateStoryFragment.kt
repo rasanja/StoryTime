@@ -1,7 +1,6 @@
 package cs477.gmu.project3_rdelphec.ui.create
 
 import android.graphics.Bitmap
-import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -31,28 +30,29 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import android.graphics.Matrix
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import cs477.gmu.project3_rdelphec.ui.CameraPreview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 
 
 class CreateStoryFragment : Fragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return ComposeView(requireContext()).apply {
             setContent {
                 UIPreview()
@@ -64,6 +64,7 @@ class CreateStoryFragment : Fragment() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CreateStoryUI(){
+        val scope = rememberCoroutineScope()
         val scaffoldState = rememberBottomSheetScaffoldState()
         val context = LocalContext.current
         val controller = remember {
@@ -74,11 +75,18 @@ class CreateStoryFragment : Fragment() {
             }
         }
 
+        val viewModel = viewModel<CreateStoryViewModel>()
+        val bitmaps by viewModel.bitmaps.collectAsState()
+
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
             sheetPeekHeight = 0.dp,
             sheetContent = {
-
+                PhotoBottomSheet(  //Photo bottom sheet UI
+                    bitmaps = bitmaps,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
         ) { padding ->
             Box(
@@ -117,7 +125,9 @@ class CreateStoryFragment : Fragment() {
                 ){
                     IconButton( //open gallery button
                         onClick = {
-
+                            scope.launch {
+                                scaffoldState.bottomSheetState.expand()
+                            }
                         }
                     ) {
                         Icon(
@@ -127,7 +137,10 @@ class CreateStoryFragment : Fragment() {
                     }
                     IconButton( //take photo button
                         onClick = {
-
+                            takePhoto(
+                                controller = controller,
+                                onPhotoTaken = viewModel::onTakePhoto
+                            )
                         }
                     ) {
                         Icon(
@@ -147,13 +160,6 @@ class CreateStoryFragment : Fragment() {
     }
 
 
-    @Composable
-    fun GreetingPreview() {
-    }
-
-    private fun startCamera(){
-
-    }
 
     private fun takePhoto(
         controller: LifecycleCameraController,
@@ -165,7 +171,21 @@ class CreateStoryFragment : Fragment() {
                 override fun onCaptureSuccess(image: ImageProxy) {
                     super.onCaptureSuccess(image)
 
-                    onPhotoTaken(image.toBitmap())
+                    val matrix = Matrix().apply {
+                        postRotate(image.imageInfo.rotationDegrees.toFloat())
+                    }
+
+                    val rotatedBitmap = Bitmap.createBitmap(
+                        image.toBitmap(),
+                        0,
+                        0,
+                        image.width,
+                        image.height,
+                        matrix,
+                        true
+                    )
+
+                    onPhotoTaken(rotatedBitmap)
                 }
 
                 override fun onError(exception: ImageCaptureException) {

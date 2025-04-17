@@ -1,4 +1,4 @@
-package cs477.gmu.project3_rdelphec.ui
+package cs477.gmu.project3_rdelphec.ui.create
 
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
