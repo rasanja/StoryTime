@@ -43,17 +43,22 @@ import android.widget.ImageButton
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
@@ -95,99 +100,53 @@ class CreateStoryFragment : Fragment() {
         val viewModel = viewModel<CreateStoryViewModel>()
         val photo by viewModel.bitmap.collectAsState()
 
-        if(isCameraOpen){
+        if(isCameraOpen){ //show camera preview
             CameraUI(
                 onClose = {isCameraOpen = false}
             )
-        }else{
+        }else{ //show CreateStoryUI
             Column (
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ){ //row 1 with label and camera button
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = CircleShape
-                            )
-                            .clickable { isCameraOpen = true },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CameraAlt,
-                            contentDescription = "Launch Camera",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                }
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ){ //row 2 with text field with generate story botton
 
+                //Row 1 : Camera Button UI
+                Row (
+                    modifier = Modifier
+                        .weight(0.5f),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    LaunchCameraButton(
+                        onClick = { isCameraOpen = true}
+                    )
                 }
+
+                //Row 2: attachment UI
+                if(photo!=null){
+                    PhotoAttachmentPreview(
+                        bitmap = photo!!,
+                        onRemove = {viewModel.onTakePhoto(null)}
+                    )
+                }
+
+                // Row 3: text submission UI
+                var prompt by remember { mutableStateOf("") }
+                PromptInputRowUI(
+                    prompt = prompt,
+                    onPromptChange = { prompt = it},
+                    onSend = {} //handle prompt submission
+                )
+
+
+                //Row 4 : LLM API response UI
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(2f),
                     verticalAlignment = Alignment.Top,
                 ){ //row 3 with story output
-
-                }
-
-                if(photo!=null){ //if there is a photo show a thumbnail
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ){
-                            Text(
-                                color = MaterialTheme.colorScheme.onSurface,
-                                text ="Attached Photo",
-                            )
-
-                            IconButton(
-                                onClick = {viewModel.onTakePhoto(null)},
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Cancel,
-                                    contentDescription = "Remove Photo",
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-
-                        Image(
-                            bitmap = photo!!.asImageBitmap(),
-                            contentDescription = "Attached photo",
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .align(Alignment.CenterHorizontally),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
                 }
 
             }
@@ -197,7 +156,9 @@ class CreateStoryFragment : Fragment() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun CameraUI(onClose:() -> Unit){
+    fun CameraUI(
+        onClose:() -> Unit
+    ){
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
         val controller = remember {
@@ -281,7 +242,81 @@ class CreateStoryFragment : Fragment() {
     }
 
 
-    @Preview(showBackground = true)
+    @Composable
+    fun LaunchCameraButton(
+        onClick: () ->Unit
+    ){
+        Row (
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    )
+                    .clickable{ onClick() },
+                contentAlignment = Alignment.Center
+            ){
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Launch Camera",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun PromptInputRowUI(
+        prompt: String,
+        onPromptChange: (String) -> Unit,
+        onSend: ()->Unit
+    ) {
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding( horizontal = 8.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(24.dp)
+                )
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            TextField(
+                value = prompt,
+                onValueChange = onPromptChange,
+                placeholder = {Text("Guide your story...")},
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                singleLine = true,
+                shape = RoundedCornerShape(24.dp)
+            )
+            IconButton(
+                onClick = onSend //handle user input here
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send prompt",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+
     @Composable
     fun ConfirmPhotoUI(
         bitmap: Bitmap,
@@ -340,6 +375,43 @@ class CreateStoryFragment : Fragment() {
                         )
                     }
                 }
+            }
+        }
+    }
+
+
+    @Composable
+    fun PhotoAttachmentPreview(
+        bitmap: Bitmap,
+        onRemove: ()->Unit
+    ){
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(8.dp, bottom = 8.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(8.dp)
+        ){
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "attached photo",
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.padding(start = 4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Cancel,
+                    contentDescription = "Remove photo",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
