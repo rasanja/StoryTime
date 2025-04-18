@@ -37,19 +37,40 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.graphics.Matrix
+import android.graphics.drawable.Icon
+import android.view.Surface
+import android.widget.ImageButton
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cs477.gmu.project3_rdelphec.R
 import cs477.gmu.project3_rdelphec.ui.theme.StoryTimeTheme
 import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 class CreateStoryFragment : Fragment() {
@@ -71,6 +92,9 @@ class CreateStoryFragment : Fragment() {
     @Composable
     fun CreateStoryUI(){
         var isCameraOpen by remember { mutableStateOf(false) }
+        val viewModel = viewModel<CreateStoryViewModel>()
+        val photo by viewModel.bitmap.collectAsState()
+
         if(isCameraOpen){
             CameraUI(
                 onClose = {isCameraOpen = false}
@@ -89,12 +113,22 @@ class CreateStoryFragment : Fragment() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ){ //row 1 with label and camera button
-                    Button(
-                        onClick = { //launch camera
-                            isCameraOpen = true
-                        }
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = CircleShape
+                            )
+                            .clickable { isCameraOpen = true },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text("Open Camera")
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = "Launch Camera",
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 }
                 Row (
@@ -114,6 +148,48 @@ class CreateStoryFragment : Fragment() {
                 ){ //row 3 with story output
 
                 }
+
+                if(photo!=null){ //if there is a photo show a thumbnail
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row (
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ){
+                            Text(
+                                color = MaterialTheme.colorScheme.onSurface,
+                                text ="Attached Photo",
+                            )
+
+                            IconButton(
+                                onClick = {viewModel.onTakePhoto(null)},
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Cancel,
+                                    contentDescription = "Remove Photo",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        Image(
+                            bitmap = photo!!.asImageBitmap(),
+                            contentDescription = "Attached photo",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .align(Alignment.CenterHorizontally),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+
             }
         }
 
@@ -123,7 +199,6 @@ class CreateStoryFragment : Fragment() {
     @Composable
     fun CameraUI(onClose:() -> Unit){
         val scope = rememberCoroutineScope()
-        val scaffoldState = rememberBottomSheetScaffoldState()
         val context = LocalContext.current
         val controller = remember {
             LifecycleCameraController(context).apply {
@@ -134,23 +209,13 @@ class CreateStoryFragment : Fragment() {
         }
 
         val viewModel = viewModel<CreateStoryViewModel>()
-        val bitmaps by viewModel.bitmaps.collectAsState()
+        val photoBitmap by viewModel.bitmap.collectAsState()
 
-        BottomSheetScaffold(
-            scaffoldState = scaffoldState,
-            sheetPeekHeight = 0.dp,
-            sheetContent = {
-                PhotoBottomSheet(  //Photo bottom sheet UI
-                    bitmaps = bitmaps,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
-        ) { padding ->
+        if(photoBitmap == null){ //Photo not taken yet
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    .padding(16.dp)
             ){
                 CameraPreview(
                     controller = controller,
@@ -181,16 +246,13 @@ class CreateStoryFragment : Fragment() {
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceAround
                 ){
-                    IconButton( //open gallery button
-                        onClick = {
-                            scope.launch {
-                                scaffoldState.bottomSheetState.expand()
-                            }
-                        }
+                    IconButton( //open gallery button, implement this later
+                        onClick = { }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Photo,
-                            contentDescription = "Open Gallery"
+                            contentDescription = "Open Gallery",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     IconButton( //take photo button
@@ -203,14 +265,84 @@ class CreateStoryFragment : Fragment() {
                     ) {
                         Icon(
                             imageVector = Icons.Default.PhotoCamera,
-                            contentDescription = "Take photo"
+                            contentDescription = "Take photo",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        }else{ //photo taken, confirm if they want to keep it
+            ConfirmPhotoUI(
+                bitmap = photoBitmap!!,
+                onConfirm = { onClose() },
+                onDiscard = { viewModel.onTakePhoto(null) }
+            )
+        }
+    }
+
+
+    @Preview(showBackground = true)
+    @Composable
+    fun ConfirmPhotoUI(
+        bitmap: Bitmap,
+        onConfirm: () -> Unit,
+        onDiscard: () -> Unit
+    ){
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ){
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Captured photo",
+                modifier =  Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center),
+                contentScale = ContentScale.Crop
+            )
+
+            Row (
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ){
+                Surface (
+                    shape = CircleShape,
+                    color = Color.Black.copy(alpha = 0.6f)
+                ){
+                    IconButton( //confirm photo
+                        onClick =  onConfirm
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Confirm image",
+                            tint = Color.White,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+
+                Surface (
+                    shape = CircleShape,
+                    color = Color.Black.copy(alpha = 0.6f)
+                ){
+                    IconButton( //cancel and retake photo
+                        onClick = onDiscard
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Cancel,
+                            contentDescription = "retake image",
+                            tint = Color.White,
+                            modifier = Modifier.padding(8.dp)
                         )
                     }
                 }
             }
         }
     }
-
 
     @Composable
     private fun UIPreview(){
