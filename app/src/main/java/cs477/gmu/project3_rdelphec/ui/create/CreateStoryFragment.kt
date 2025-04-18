@@ -141,14 +141,13 @@ class CreateStoryFragment : Fragment() {
 
 
                 //Row 4 : LLM API response UI
-                Row (
+                var storyText by remember { mutableStateOf("Once upon a time...") }
+                StoryOutputUI(
+                    storyText = storyText,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(2f),
-                    verticalAlignment = Alignment.Top,
-                ){ //row 3 with story output
-                }
-
+                        .weight(2f)
+                )
             }
         }
 
@@ -243,6 +242,36 @@ class CreateStoryFragment : Fragment() {
 
 
     @Composable
+    fun StoryOutputUI(
+        storyText: String,
+        modifier: Modifier = Modifier
+    ){
+        if (storyText.isNotBlank()) {
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = "Generated Story",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = storyText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        }
+    }
+
+    @Composable
     fun LaunchCameraButton(
         onClick: () ->Unit
     ){
@@ -281,7 +310,6 @@ class CreateStoryFragment : Fragment() {
         Row (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding( horizontal = 8.dp)
                 .background(
                     color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(24.dp)
@@ -389,6 +417,7 @@ class CreateStoryFragment : Fragment() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(8.dp, bottom = 8.dp)
+                .fillMaxWidth()
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(16.dp)
