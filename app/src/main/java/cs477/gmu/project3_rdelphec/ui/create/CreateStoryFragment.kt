@@ -54,6 +54,7 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -70,12 +71,12 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cs477.gmu.project3_rdelphec.R
 import cs477.gmu.project3_rdelphec.ui.theme.StoryTimeTheme
-import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+
 
 
 class CreateStoryFragment : Fragment() {
@@ -136,18 +137,29 @@ class CreateStoryFragment : Fragment() {
                 PromptInputRowUI(
                     prompt = prompt,
                     onPromptChange = { prompt = it},
-                    onSend = {} //handle prompt submission
+                    onSend = { viewModel.generateStory(prompt)} //handle prompt submission
                 )
 
 
                 //Row 4 : LLM API response UI
-                var storyText by remember { mutableStateOf("Once upon a time...") }
-                StoryOutputUI(
-                    storyText = storyText,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(2f)
-                )
+                val storyText = viewModel.storyText
+                if(viewModel.isLoading){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(2f),
+                        contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator()
+                    }
+                }else{
+                    StoryOutputUI(
+                        storyText = storyText,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(2f)
+                    )
+                }
             }
         }
 

@@ -78,4 +78,10 @@ dependencies {
 
     //for icons
     implementation(libs.compose.material.icons.extended)
+
+    //for openAI response creation
+    implementation(libs.okhttp)
+    implementation(libs.json)
+    implementation(libs.okhttp.logging)
+
 }

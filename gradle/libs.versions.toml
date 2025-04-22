@@ -24,6 +24,8 @@ activityCompose = "1.10.1"
 lifecycleCompose = "2.8.7"
 kotlinComposeCompilerPlugin = "2.0.0" # The plugin itself just enables compiler integration
 materialIconsExtended = "1.7.0"
+okhttp = "4.12.0" #for openAI calls
+json = "20220320"
 
 
 [libraries]
@@ -53,6 +55,10 @@ material3 = { group = "androidx.compose.material3", name = "material3", version.
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleCompose" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
+
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+json = { module = "org.json:json", version.ref = "json" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
