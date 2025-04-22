@@ -39,14 +39,16 @@ This project is actively developed as part of a university course in Mobile Appl
 ---
 
 ## Architecture
+```
 StoryTime/
 ├── ui/
-│   ├── create/          # Camera and CreateStory UI components
-│   ├── theme/           # Custom Material 3 themes
+│   ├── create/            # Camera and CreateStory UI components
+│   ├── theme/             # Custom Material 3 themes
 ├── viewmodel/
 │   ├── CreateStoryViewModel.kt
 ├── MainActivity.kt
 ├── App.kt
+```
 
 - **UI Layer:** Built with Compose, reactive to ViewModel state updates
 - **ViewModel Layer:** Handles user input, business logic, and backend communication
