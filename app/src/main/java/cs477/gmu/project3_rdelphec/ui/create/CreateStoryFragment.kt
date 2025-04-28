@@ -46,8 +46,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Cancel
@@ -262,6 +264,7 @@ class CreateStoryFragment : Fragment() {
             Column(
                 modifier = modifier
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(16.dp)

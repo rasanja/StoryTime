@@ -26,7 +26,7 @@ private val DarkColors = darkColorScheme(
     surface = Color(0xFF1A1A1A),
     onSurface = Color(0xFFFAF3DC),
 
-    // 🔧 Fix: more visible selection highlight
+    //more visible selection highlight
     secondaryContainer = Color(0xFF3F4F6A),         // Brighter than background
     onSecondaryContainer = Color(0xFFFFF8E1)
 )
